@@ -34,7 +34,11 @@ In this workshop, we will answer the question: How do specific leaf area, water 
 # 1. Set up
 
 ```{r packages-and-data}
-# read in your packages here
+
+
+remotes::install_github("strengejacke/ggeffects")
+install.packages("MuMIn")
+
 library(tidyverse) # general use
 library(here) # file organization
 library(janitor) # cleaning data frames
@@ -43,7 +47,14 @@ library(scales) # modifying axis labels
 library(ggeffects) # getting model predictions
 library(MuMIn) # model selection
 
+
 # read in your data here
+drought_exp <- read_xlsx(
+  # file path
+  here("data", "Valliere_etal_EcoApps_Data.xlsx"),
+  # specifying which sheet you want to read in
+  sheet = "First Harvest"
+)
 
 ```
 
@@ -51,6 +62,7 @@ Storing some colors to use in visualizations, and setting a common `ggplot` them
 
 ```{r storing-colors-and-theme}
 # storing colors to use for species
+# 
 lotsco_col <- "#E69512"
 pencen_col <- "#D6264F"
 salleu_col <- "#6D397D"
@@ -64,6 +76,7 @@ ds_col <- "#A62F03"
 ww_col <- "#045CB4"
 
 # storing a ggplot theme (that will be used for all ggplots)
+# make all of our gg sets have the same theme 
 theme_set(theme_bw())
 ```
 
@@ -71,11 +84,11 @@ theme_set(theme_bw())
 # 2. Clean data
 
 ```{r data-cleaning}
-# INSERT COMMENT HERE
-drought_exp_clean <- drought_exp |> # INSERT COMMENT HERE
-  # INSERT COMMENT HERE
+# Creating a clean data frame
+drought_exp_clean <- drought_exp |>  # Stating with the drought_exp object 
+  # cleaning function names 
   clean_names() |> 
-  # INSERT COMMENT HERE
+  # making a column of full species names 
   mutate(species_name = case_match(
     species,
     "ENCCAL" ~ "Encelia californica", # bush sunflower
@@ -86,13 +99,13 @@ drought_exp_clean <- drought_exp |> # INSERT COMMENT HERE
     "STIPUL" ~ "Stipa pulchra", # purple needlegrass
     "LOTSCO" ~ "Lotus scoparius" # deerweed
   )) |> 
-  # INSERT COMMENT HERE
+  # Making a column of full drought-treatment names 
   mutate(water_treatment = case_match(
     water,
     "WW" ~ "Well watered",
     "DS" ~ "Drought stressed"
   )) |> 
-  # INSERT COMMENT HERE
+  # Makes the species name explicitly a factor, instead of an character , ordering levels 
   mutate(species_name = as_factor(species_name),
          species_name = fct_relevel(species_name,
                                     "Lotus scoparius",
@@ -102,12 +115,12 @@ drought_exp_clean <- drought_exp |> # INSERT COMMENT HERE
                                     "Stipa pulchra",
                                     "Eschscholzia californica",
                                     "Grindelia camporum")) |> 
-  # INSERT COMMENT HERE
+  # making sure that water_treatment is. a factor and reording the levels 
   mutate(water_treatment = as_factor(water_treatment),
          water_treatment = fct_relevel(water_treatment,
                                        "Drought stressed",
                                        "Well watered")) |> 
-  # INSERT COMMENT HERE
+  # Selecting columns of interest 
   select(species_name, water_treatment, sla, total_g)
 ```
 
@@ -121,8 +134,8 @@ And displaying some rows from the data frame:
 
 ```{r showing-data-frame-rows}
 slice_sample(
-  drought_exp_clean, # INSERT COMMENT HERE
-  n = 10 # INSERT COMMENT HERE
+  drought_exp_clean, # displaying rows from drought_exp_clean
+  n = 10 # displaying qo rows 
 )
 ```
 
